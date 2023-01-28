@@ -143,7 +143,7 @@
    int OnInitEvent_TrailStop(bool InpUseTrailStop, double InpTrailStopLoss, int InpTrailStopLossMode, double InpTrailStepLoss, int InpTrailStepLossMode);
    int OnInitEvent_TrailEntry(bool InpTrailEntry, int InpTrailEntryStepInPoints, int InpTrailEntryStopInPoints);
    int OnInitEvent_WeekendFilter(int InpWeekendFilter_XMinutesBeforeMarketClose);
-   int OnInitEvent_Zones(bool Inp_DrawAutoZone
+   int OnInitEvent_Zones(bool Inp_UseVirtualPrice, int Inp_MagicNumber, bool Inp_DrawAutoZone
                         , bool Inp_MultiTimeframe
                         , ENUM_TIMEFRAMES Inp_Timeframe1
                         , ENUM_LINE_STYLE Inp_ZoneStyle1
