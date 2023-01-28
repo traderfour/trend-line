@@ -7,7 +7,7 @@
 #property link      "https://trader4.net"
 #property version   "1.10"
 
-#include <TradingFramework\\TradingFramework.mqh>
+#include <TradingFramework\\trading-framework\\TradingFramework.mqh>
 //#include <TradingFramework\\TradingFramework-Copy(3).mqh>
 
 #import "TradingFramework.ex5"
@@ -47,7 +47,7 @@
    bool CTrailEntry_EnterTrade(int &MaxTrailedInPoints, int BuyOrSell, double EnterPrice);
    
 
-   int TradingFramework_OnInitEvent();
+   int TradingFramework_OnInitEvent(int InpMagicNumber);
    int OnInitEvent_AntiMartingale(int InpAntiMartingale_MaxAntiMartingaleLevel, int InpAntiMartingale_ConsecutiveStops, double InpAntiMartingale_Multiplier, int InpMagicNumber);
    int OnInitEvent_DailyPnL(int InpMode, double InpDailyProfit, double InpDailyLoss, int InpMagicNumber);
    int OnInitEvent_EquityProtector(double InpEquityProtector_Value, int InpEquityProtector_Mode, bool InpEquityProtector_StopOut);
@@ -193,7 +193,7 @@
 #import
 
 input group "====================== Indicator Properties ======================"
-input string input_IndicatorName = "Trader4\\TrendLinesWithBreaks-Indicator"; //IndicatorName
+input string input_IndicatorName = "Trader4\\trend-line\\TrendLinesWithBreaks-Indicator"; //IndicatorName
 input int input_length = 14; //length
 input double input_Slope = 1.; //Slope
 enum ENUM_Method
@@ -210,7 +210,7 @@ input ENUM_Method input_method = Atr; //Slope Calculation Method
 int OnInit()
 {
 //---
-   int RetVal = TradingFramework_OnInitEvent();
+   int RetVal = TradingFramework_OnInitEvent(input_MagicNumber);
    if (RetVal != INIT_SUCCEEDED) return(RetVal);
 
    RetVal = OnInitEvent1_RW(input_RiskFreeExtra, input_RiskFreeIncludeSwapXMinBeforeDayEnd, input_UseVirtualPrice, input_MagicNumber, input_MaxSlippage, input_RW_Method, input_RW_Price_StepInPoints, input_RW_RSI_Timeframe, input_RW_RSI_MAPeriod, input_RW_RSI_AppliedPrice, input_RW_RSI_Level, input_RW_RSI_TurnBack, input_RW_CCI_Timeframe, input_RW_CCI_MAPeriod, input_RW_CCI_AppliedPrice, input_RW_CCI_Level, input_RW_CCI_TurnBack, input_RW_Stoch_Timeframe, input_RW_Stoch_KPeriod, input_RW_Stoch_DPeriod, input_RW_Stoch_Slowing, input_RW_Stoch_MAMethod, input_RW_Stoch_PriceField, input_RW_Stoch_Level, input_RW_Stoch_TurnBack, input_RW_MACD_Timeframe, input_RW_MACD_FastEMAPeriod, input_RW_MACD_SlowEMAPeriod, input_RW_MACD_SignalPeriod, input_RW_MACD_AppliedPrice, input_RW_MA_Timeframe, input_RW_MAFast_Period, input_RW_MASlow_Period, input_RW_MA_Shift, input_RW_MA_Method, input_RW_MA_AppliedPrice, input_RW_Ichimoku_Timeframe, input_RW_Ichimoku_TenkanSenPeriod, input_RW_Ichimoku_KijunSenPeriod, input_RW_Ichimoku_SenkouSpanBPeriod, input_RW_Ichimoku_TimeTheory_Array_Str);
