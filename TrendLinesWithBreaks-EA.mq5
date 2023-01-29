@@ -48,7 +48,7 @@
    
 
    int TradingFramework_OnInitEvent(int InpMagicNumber);
-   int OnInitEvent_AntiMartingale(int InpAntiMartingale_MaxAntiMartingaleLevel, int InpAntiMartingale_ConsecutiveStops, double InpAntiMartingale_Multiplier, int InpMagicNumber);
+   int OnInitEvent_AntiMartingale(int InpAntiMartingale_MaxAntiMartingaleLevel, int InpAntiMartingale_ConsecutiveStops, double InpAntiMartingale_Multiplier, int InpMagicNumber, bool InpUseVirtualPrice);
    int OnInitEvent_DailyPnL(int InpMode, double InpDailyProfit, double InpDailyLoss, int InpMagicNumber);
    int OnInitEvent_EquityProtector(double InpEquityProtector_Value, int InpEquityProtector_Mode, bool InpEquityProtector_StopOut);
    int OnInitEvent_MaxRoundedNumbers(int InpRoundedNumbers_ZeroDigits, int InpRoundedNumbersMaxDistance_Points);
@@ -220,7 +220,7 @@ int OnInit()
    RetVal = OnInitEvent2_RW(input_RW_Zone_Timeframe, input_RW_Zone_EntryType, input_RW_Zone_MultiTimeframe, input_RW_Zone_Timeframe1, input_RW_Zone_ZoneStyle1, input_RW_Zone_ZoneColor1_Supply, input_RW_Zone_ZoneColor1_Demand, input_RW_Zone_ZoneColor1_None, input_RW_Zone_ZoneFill1, input_RW_Zone_Timeframe2, input_RW_Zone_ZoneStyle2, input_RW_Zone_ZoneColor2_Supply, input_RW_Zone_ZoneColor2_Demand, input_RW_Zone_ZoneColor2_None, input_RW_Zone_ZoneFill2, input_RW_Zone_Timeframe3, input_RW_Zone_ZoneStyle3, input_RW_Zone_ZoneColor3_Supply, input_RW_Zone_ZoneColor3_Demand, input_RW_Zone_ZoneColor3_None, input_RW_Zone_ZoneFill3, input_RW_Zone_IndicatorMode, input_RW_Zone_BackLimit, input_RW_Zone_DeleteZonesAfterXBars, input_RW_Zone_zone_show_weak, input_RW_Zone_zone_show_untested, input_RW_Zone_zone_show_turncoat, input_RW_Zone_DrawMode, input_RW_Zone_TradeMode, input_RW_Zone_ReversePositioning, input_RW_Zone_RoundedNumbers_ZeroDigits, input_RW_Zone_RoundedNumbersMaxDistance_Points, input_RW_Zone_NearestZoneMinDistanceInPoints, input_RW_Zone_MaxZoneSizeInPoints, input_RW_Zone_MinZoneSizeInPoints, input_RW_DrawAutoZone);
    if (RetVal != INIT_SUCCEEDED) return(RetVal);
    
-   RetVal = OnInitEvent_AntiMartingale(input_AntiMartingale_MaxMartingaleLevel, input_AntiMartingale_ConsecutiveStops, input_AntiMartingale_Multiplier, input_MagicNumber);
+   RetVal = OnInitEvent_AntiMartingale(input_AntiMartingale_MaxMartingaleLevel, input_AntiMartingale_ConsecutiveStops, input_AntiMartingale_Multiplier, input_MagicNumber, input_UseVirtualPrice);
    if (RetVal != INIT_SUCCEEDED) return(RetVal);
 
    RetVal = OnInitEvent_DailyPnL(input_Daily_PnL, input_DailyProfit, input_DailyLoss, input_MagicNumber);
