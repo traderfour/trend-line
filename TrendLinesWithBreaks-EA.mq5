@@ -34,7 +34,7 @@
 //class IIndicator  
    double CIndicator_GetBufferValue(int handle, int Buffer, int shift);
 //class IReversePositioning
-   int CReversePositioning_CheckForNewTrade(bool InpUseVirtualPrice, int InpMagicNumber, string TradeCommentPref, string &NewTradeComment, double &SL);
+   bool CReversePositioning_CheckAndEnterNewTrade(bool InpUseVirtualPrice, int InpMagicNumber, int InpMaxSlippage, string Zone_ObjName);
 //class IRiskFree
    void CRiskFree_Set(ulong ticket, double TP_InPrice=0);
 //class IZones
@@ -188,8 +188,9 @@
    void TradingFramework_OnChartEvent_(const int id, const long &lparam, const double &dparam, const string &sparam);
    bool TradingFramework_OnCalculateEvent(bool InpUseVirtualPrice, int InpMagicNumber, int InpMaxSlippage, string TradeCommentPref4AntiMartingale);
    int OpenTrade(const string symbol, ENUM_ORDER_TYPE type, double &price, double sl, int InpMagicNumber, int InpMaxSlippage, bool InpUseVirtualPrice, string TradeCommentPref, string TradeCommentPref4AntiMartingale);
-   double Lots(string f_symbol, int BuyOrSell, double price, double sl, double &f_tp, string TradeCommentPref4AntiMatingale, int &MartingaleLevel);
-      
+   double Lots(string f_symbol, int BuyOrSell, double price, double sl, double &f_tp, string TradeCommentPref4AntiMartingale, int PosNum, int &MartingaleLevel);
+   string TradeComment(string comment, ulong ticket);
+   
 #import
 
 input group "====================== Indicator Properties ======================"
