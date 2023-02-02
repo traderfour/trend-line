@@ -7,13 +7,15 @@
 #property link      "https://trader4.net"
 #property version   "1.10"
 
+const string TerminalComment = "Trader4.net, TrendLine 1.0";
+
 #include <TradingFramework\\trading-framework\\TradingFramework.mqh>
 //#include <TradingFramework\\TradingFramework-Copy(3).mqh>
 
 #import "TradingFramework.ex5"
 //class ITrade
    bool CTrade_ClosePosition(ulong ticket, double Volume=0);
-   ulong CTrade_OpenPosition(bool InpUseVirtualPrice, const string symbol, const ENUM_ORDER_TYPE type, const double lot, double &price, const double sl, const double tp, const string comment, int InpMagicNumber, int InpMaxSlippage);
+   ulong CTrade_OpenPosition(bool InpUseVirtualPrice, const string symbol, const ENUM_ORDER_TYPE type, const double lot, double &price, const double sl, const double tp, const string comment, string InpTerminalComment, int InpMagicNumber, int InpMaxSlippage);
    bool CTrade_ModifySL(bool InpUseVirtualPrice, ulong ticket, double fNewSL, bool ForceHard=false);
    bool CTrade_ModifyTP(bool InpUseVirtualPrice, ulong ticket, double fNewTP, bool ForceHard=false);
    bool CTrade_ClosePositions(int InpMagicNumber, string symbol, int pos_type=-1, string comment=NULL);
@@ -25,16 +27,16 @@
 //class IAlert
    void CAlert_SendAlert(bool InpSendAlertViaAlertWindow, bool InpSendAlertViaNotification, bool InpSendAlertViaEmail, string Inp_Message);
 //class IGrid
-   int CGrid_Set(bool CanEnterNewTrade, bool InpUseVirtualPrice, int InpMagicNumber, int InpMaxSlippage, int BuySell, double StartPrice, int Distance_Points, int MaxLevel, int Mode, double Lot, int TP_Point, MqlParam &AllSets[][13]);
+   int CGrid_Set(bool CanEnterNewTrade, bool InpUseVirtualPrice, int InpMagicNumber, int InpMaxSlippage, string InpTerminalComment, int BuySell, double StartPrice, int Distance_Points, int MaxLevel, int Mode, double Lot, int TP_Point, MqlParam &AllSets[][13]);
    bool CGrid_UnSet(int ID, MqlParam &AllSets[][13], bool RemoveOpenPending);
    void CGrid_GetSets(MqlParam &AllSets[][13]);
 //class IHedge
-   bool CHedge_Set(bool CanEnterNewTrade, int InpMagicNumber, int InpMaxSlippage, ulong ticket, int Distance_Points, double LotPercent);
+   bool CHedge_Set(bool CanEnterNewTrade, int InpMagicNumber, int InpMaxSlippage, string InpTerminalComment, ulong ticket, int Distance_Points, double LotPercent);
    bool CHedge_UnSet(ulong ticket);
 //class IIndicator  
    double CIndicator_GetBufferValue(int handle, int Buffer, int shift);
 //class IReversePositioning
-   bool CReversePositioning_CheckAndEnterNewTrade(bool InpUseVirtualPrice, int InpMagicNumber, int InpMaxSlippage, string Zone_ObjName);
+   bool CReversePositioning_CheckAndEnterNewTrade(bool InpUseVirtualPrice, int InpMagicNumber, string InpTerminalComment, int InpMaxSlippage, string Zone_ObjName);
 //class IRiskFree
    void CRiskFree_Set(ulong ticket, double TP_InPrice=0);
 //class IZones
@@ -48,7 +50,7 @@
    
 
    int TradingFramework_OnInitEvent(int InpMagicNumber);
-   int OnInitEvent_AntiMartingale(int InpAntiMartingale_MaxAntiMartingaleLevel, int InpAntiMartingale_ConsecutiveStops, double InpAntiMartingale_Multiplier, int InpMagicNumber, bool InpUseVirtualPrice);
+   int OnInitEvent_AntiMartingale(int InpAntiMartingale_MaxAntiMartingaleLevel, int InpAntiMartingale_ConsecutiveStops, double InpAntiMartingale_Multiplier, int InpMagicNumber, int InpUseVirtualPrice);
    int OnInitEvent_DailyPnL(int InpMode, double InpDailyProfit, double InpDailyLoss, int InpMagicNumber);
    int OnInitEvent_EquityProtector(double InpEquityProtector_Value, int InpEquityProtector_Mode, bool InpEquityProtector_StopOut);
    int OnInitEvent_MaxRoundedNumbers(int InpRoundedNumbers_ZeroDigits, int InpRoundedNumbersMaxDistance_Points);
@@ -65,6 +67,7 @@
                    , bool Inp_UseVirtualPrice
                    , int Inp_MagicNumber
                    , int Inp_MaxSlippage
+                   , string Inp_TerminalComment 
                    , int Inp_Method
                    , int Inp_Price_StepInPoints
                    , ENUM_TIMEFRAMES Inp_RSI_Timeframe
@@ -186,10 +189,10 @@
                         , string Inp_ObjPref=""
                   );
    void TradingFramework_OnChartEvent_(const int id, const long &lparam, const double &dparam, const string &sparam);
-   bool TradingFramework_OnCalculateEvent(bool InpUseVirtualPrice, int InpMagicNumber, int InpMaxSlippage, string TradeCommentPref4AntiMartingale);
-   int OpenTrade(const string symbol, ENUM_ORDER_TYPE type, double &price, double sl, int InpMagicNumber, int InpMaxSlippage, bool InpUseVirtualPrice, string TradeCommentPref, string TradeCommentPref4AntiMartingale);
+   bool TradingFramework_OnCalculateEvent(bool InpUseVirtualPrice, int InpMagicNumber, string InpTerminalComment, int InpMaxSlippage, string TradeCommentPref4AntiMartingale);
+   int OpenTrade(const string symbol, ENUM_ORDER_TYPE type, double &price, double sl, int InpMagicNumber, string InpTerminalComment, int InpMaxSlippage, bool InpUseVirtualPrice, string TradeCommentPref, string TradeCommentPref4AntiMartingale);
    double Lots(string f_symbol, int BuyOrSell, double price, double sl, double &f_tp, string TradeCommentPref4AntiMartingale, int PosNum, int &MartingaleLevel);
-   string TradeComment(string comment, ulong ticket);
+   string TradeComment(ulong ticket);
    
 #import
 
@@ -214,7 +217,7 @@ int OnInit()
    int RetVal = TradingFramework_OnInitEvent(input_MagicNumber);
    if (RetVal != INIT_SUCCEEDED) return(RetVal);
 
-   RetVal = OnInitEvent1_RW(input_RiskFreeExtra, input_RiskFreeIncludeSwapXMinBeforeDayEnd, input_UseVirtualPrice, input_MagicNumber, input_MaxSlippage, input_RW_Method, input_RW_Price_StepInPoints, input_RW_RSI_Timeframe, input_RW_RSI_MAPeriod, input_RW_RSI_AppliedPrice, input_RW_RSI_Level, input_RW_RSI_TurnBack, input_RW_CCI_Timeframe, input_RW_CCI_MAPeriod, input_RW_CCI_AppliedPrice, input_RW_CCI_Level, input_RW_CCI_TurnBack, input_RW_Stoch_Timeframe, input_RW_Stoch_KPeriod, input_RW_Stoch_DPeriod, input_RW_Stoch_Slowing, input_RW_Stoch_MAMethod, input_RW_Stoch_PriceField, input_RW_Stoch_Level, input_RW_Stoch_TurnBack, input_RW_MACD_Timeframe, input_RW_MACD_FastEMAPeriod, input_RW_MACD_SlowEMAPeriod, input_RW_MACD_SignalPeriod, input_RW_MACD_AppliedPrice, input_RW_MA_Timeframe, input_RW_MAFast_Period, input_RW_MASlow_Period, input_RW_MA_Shift, input_RW_MA_Method, input_RW_MA_AppliedPrice, input_RW_Ichimoku_Timeframe, input_RW_Ichimoku_TenkanSenPeriod, input_RW_Ichimoku_KijunSenPeriod, input_RW_Ichimoku_SenkouSpanBPeriod, input_RW_Ichimoku_TimeTheory_Array_Str);
+   RetVal = OnInitEvent1_RW(input_RiskFreeExtra, input_RiskFreeIncludeSwapXMinBeforeDayEnd, input_UseVirtualPrice, input_MagicNumber, input_MaxSlippage, TerminalComment, input_RW_Method, input_RW_Price_StepInPoints, input_RW_RSI_Timeframe, input_RW_RSI_MAPeriod, input_RW_RSI_AppliedPrice, input_RW_RSI_Level, input_RW_RSI_TurnBack, input_RW_CCI_Timeframe, input_RW_CCI_MAPeriod, input_RW_CCI_AppliedPrice, input_RW_CCI_Level, input_RW_CCI_TurnBack, input_RW_Stoch_Timeframe, input_RW_Stoch_KPeriod, input_RW_Stoch_DPeriod, input_RW_Stoch_Slowing, input_RW_Stoch_MAMethod, input_RW_Stoch_PriceField, input_RW_Stoch_Level, input_RW_Stoch_TurnBack, input_RW_MACD_Timeframe, input_RW_MACD_FastEMAPeriod, input_RW_MACD_SlowEMAPeriod, input_RW_MACD_SignalPeriod, input_RW_MACD_AppliedPrice, input_RW_MA_Timeframe, input_RW_MAFast_Period, input_RW_MASlow_Period, input_RW_MA_Shift, input_RW_MA_Method, input_RW_MA_AppliedPrice, input_RW_Ichimoku_Timeframe, input_RW_Ichimoku_TenkanSenPeriod, input_RW_Ichimoku_KijunSenPeriod, input_RW_Ichimoku_SenkouSpanBPeriod, input_RW_Ichimoku_TimeTheory_Array_Str);
    if (RetVal != INIT_SUCCEEDED) return(RetVal);
     
    RetVal = OnInitEvent2_RW(input_RW_Zone_Timeframe, input_RW_Zone_EntryType, input_RW_Zone_MultiTimeframe, input_RW_Zone_Timeframe1, input_RW_Zone_ZoneStyle1, input_RW_Zone_ZoneColor1_Supply, input_RW_Zone_ZoneColor1_Demand, input_RW_Zone_ZoneColor1_None, input_RW_Zone_ZoneFill1, input_RW_Zone_Timeframe2, input_RW_Zone_ZoneStyle2, input_RW_Zone_ZoneColor2_Supply, input_RW_Zone_ZoneColor2_Demand, input_RW_Zone_ZoneColor2_None, input_RW_Zone_ZoneFill2, input_RW_Zone_Timeframe3, input_RW_Zone_ZoneStyle3, input_RW_Zone_ZoneColor3_Supply, input_RW_Zone_ZoneColor3_Demand, input_RW_Zone_ZoneColor3_None, input_RW_Zone_ZoneFill3, input_RW_Zone_IndicatorMode, input_RW_Zone_BackLimit, input_RW_Zone_DeleteZonesAfterXBars, input_RW_Zone_zone_show_weak, input_RW_Zone_zone_show_untested, input_RW_Zone_zone_show_turncoat, input_RW_Zone_DrawMode, input_RW_Zone_TradeMode, input_RW_Zone_ReversePositioning, input_RW_Zone_RoundedNumbers_ZeroDigits, input_RW_Zone_RoundedNumbersMaxDistance_Points, input_RW_Zone_NearestZoneMinDistanceInPoints, input_RW_Zone_MaxZoneSizeInPoints, input_RW_Zone_MinZoneSizeInPoints, input_RW_DrawAutoZone);
@@ -296,7 +299,7 @@ if (TimeCurrent() >= D'2022.11.1 14:27'+29)
    
    static int MaxTrailedInPoints = 0;
    
-   bool CanEnterTrade = TradingFramework_OnCalculateEvent(input_UseVirtualPrice, input_MagicNumber, input_MaxSlippage, "TLB");
+   bool CanEnterTrade = TradingFramework_OnCalculateEvent(input_UseVirtualPrice, input_MagicNumber, TerminalComment, input_MaxSlippage, "TLB");
             
    static int Signal = 0; static datetime SignalTime = 0; static double SignalPrice = 0, SignalSL = 0;
    if (IsNewCandle && CanEnterTrade)
@@ -341,7 +344,7 @@ if (TimeCurrent() >= D'2022.11.1 14:27'+29)
          double sl = SignalSL;
          
          
-         int TotalPositions = OpenTrade(symbol, type, price, sl, input_MagicNumber, input_MaxSlippage, input_UseVirtualPrice, TradeCommentPref, "TLB");
+         int TotalPositions = OpenTrade(symbol, type, price, sl, input_MagicNumber, TerminalComment, input_MaxSlippage, input_UseVirtualPrice, TradeCommentPref, "TLB");
          
          if (TotalPositions > 0)
          {                  
