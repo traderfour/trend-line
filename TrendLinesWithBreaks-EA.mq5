@@ -7,7 +7,7 @@
 #property link      "https://trader4.net"
 #property version   "1.10"
 
-const string TerminalComment = "Trader4.net, TrendLine 1.0";
+const string TerminalComment = "Trader4.net, Trend Line 1.0";
 
 #include <TradingFramework\\trading-framework\\TradingFramework.mqh>
 //#include <TradingFramework\\TradingFramework-Copy(3).mqh>
