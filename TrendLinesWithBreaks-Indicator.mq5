@@ -8,7 +8,7 @@
 #property version   "1.10"
 
 #property indicator_chart_window
-#property indicator_buffers 17
+#property indicator_buffers 19
 #property indicator_plots   4
 
 #property indicator_type1   DRAW_ARROW
@@ -29,10 +29,11 @@ enum ENUM_Method
 };
 input ENUM_Method method = Atr; //Slope Calculation Method
 
- //bool show = true; //Show Only Confirmed Breakouts
+input bool show = true; //Show Only Confirmed Breakouts
 
 double ph[], pl[], slope[], slope_ph[], slope_pl[], upper[], lower[], AlreadyBrokeout_upper[], AlreadyBrokeout_lower[], Breakout_Buy[], Breakout_Sell[], SL_Buy[], SL_Sell[], TempSL_Buy[], TempSL_Sell[];
 double Last_ph_time[], Last_pl_time[];
+double single_upper[], single_lower[];
 const string ObjPref = "TLB-";
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
@@ -64,6 +65,8 @@ int OnInit()
    SetIndexBuffer(14,TempSL_Sell); ArrayInitialize(TempSL_Sell, 0);
    SetIndexBuffer(15,Last_ph_time); ArrayInitialize(Last_ph_time, 0);
    SetIndexBuffer(16,Last_pl_time); ArrayInitialize(Last_pl_time, 0);
+   SetIndexBuffer(17,single_upper); ArrayInitialize(single_upper, 0);
+   SetIndexBuffer(18,single_lower); ArrayInitialize(single_lower, 0);
    
    PlotIndexSetDouble(0, PLOT_EMPTY_VALUE, 0); PlotIndexSetString(0,PLOT_LABEL,"Buy Breakout");
    PlotIndexSetDouble(1, PLOT_EMPTY_VALUE, 0); PlotIndexSetString(1,PLOT_LABEL,"Sell Breakout");
@@ -233,7 +236,7 @@ int OnCalculate(const int rates_total,
       TempSL_Buy[i] = ph[i] != 0 ? low[i] : MathMin(low[i], TempSL_Buy[i-1]);
       TempSL_Sell[i] = pl[i] != 0 ? high[i] : MathMax(high[i], TempSL_Sell[i-1]);
       
-      if (AlreadyBrokeout_upper[i] == 0 && close[i] > upper[i])
+      if (AlreadyBrokeout_upper[i] == 0 && close[i] > upper[i] && (show ? i+length < rates_total && close[i+length] > close[i] : true))
       {
          Breakout_Buy[i] = low[i];
          SL_Buy[i] = TempSL_Buy[i];
@@ -242,7 +245,7 @@ int OnCalculate(const int rates_total,
       }
       else Breakout_Buy[i] = 0;
       
-      if (AlreadyBrokeout_lower[i] == 0 && close[i] < lower[i])
+      if (AlreadyBrokeout_lower[i] == 0 && close[i] < lower[i] && (show ? i+length < rates_total && close[i+length] < close[i] : true))
       {
          Breakout_Sell[i] = high[i];
          SL_Sell[i] = TempSL_Sell[i];
@@ -251,14 +254,14 @@ int OnCalculate(const int rates_total,
       }
       else Breakout_Sell[i] = 0;
      /*
-      single_upper[i] = close[i-length] > upper[i] ? 0 : ph[i] != 0 ? 1 : single_upper[i-1];
-      single_lower[i] = close[i-length] < lower[i] ? 0 : pl[i] != 0 ? 1 : single_lower[i-1];
+      single_upper[i] = (close[i-length] > upper[i] ? 0 : ph[i] != 0 ? 1 : single_upper[i-1]);
+      single_lower[i] = (close[i-length] < lower[i] ? 0 : pl[i] != 0 ? 1 : single_lower[i-1]);
      
-      upper_breakout[i] = (single_upper[i-1] > 0 && close[i-length] > upper[i] && (show ? close[i] > close[i-length] : true) ? low[i-length] : 0);
-      lower_breakout[i] = (single_lower[i-1] > 0 && close[i-length] < lower[i] && (show ? close[i] < close[i-length] : true) ? high[i-length] : 0);
-      */
-    //  upper_breakout[i] = (close[i] > upper[i]-slope_ph[i]*length && close[i-1] <= upper[i-1]-slope_ph[i-1]*length ? low[i] : 0);
-    //  lower_breakout[i] = (close[i] < lower[i]+slope_pl[i]*length && close[i-1] >= lower[i-1]+slope_pl[i-1]*length ? high[i] : 0);
+      if (Breakout_Buy[i-length] == 0) Breakout_Buy[i-length] = (single_upper[i-1] > 0 && close[i-length] > upper[i] && (show ? close[i] > close[i-length] : true) ? low[i-length] : 0);
+      if (Breakout_Sell[i-length] == 0) Breakout_Sell[i-length] = (single_lower[i-1] > 0 && close[i-length] < lower[i] && (show ? close[i] < close[i-length] : true) ? high[i-length] : 0);
+      
+      Breakout_Buy[i-length] = (single_upper[i-1] > 0 ? low[i-length] : 0);
+      Breakout_Sell[i-length] = (single_lower[i-1] > 0 ? high[i-length] : 0);*/
    }
    
 //--- return value of prev_calculated for next call
